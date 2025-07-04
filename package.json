@@ -1,5 +1,5 @@
 {
-  "name": "als-naive-recommender",
+  "name": "node-streams-training",
   "version": "1.0.0",
   "main": "index.js",
   "author": "AndrasHacks <mr.acs.andras@gmail.com>",
@@ -23,5 +23,8 @@
     "test": "jest",
     "test-watch": "jest --watch"
   },
-  "dependencies": {}
+  "dependencies": {
+    "json-beautify": "^1.1.1",
+    "stream-json": "^1.9.1"
+  }
 }
