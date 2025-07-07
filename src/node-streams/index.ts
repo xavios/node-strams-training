@@ -1,5 +1,6 @@
 import * as fs from "fs";
-import { pipeline, Readable } from "stream";
+import { Readable, pipeline } from "stream";
+import { pipeline as pipelinePromise } from "node:stream/promises";
 import { parser } from "stream-json";
 import { streamArray } from "stream-json/streamers/StreamArray";
 import { stringer } from "stream-json/jsonl/Stringer";
@@ -99,8 +100,8 @@ export const streamingDataProcessing = () => {
     });
 };
 
-export const streamingPipelineImplementation = async () => {
-  await pipeline(
+export const streamingPipelineImplementation = () => {
+  pipeline(
     fs.createReadStream(filePath, "utf-8"),
     parser(),
     streamArray(),
@@ -114,11 +115,34 @@ export const streamingPipelineImplementation = async () => {
       }
     },
     stringer(),
-    fs.createWriteStream("data/5MB-stream.json"),
+    fs.createWriteStream("data/5MB-stream-pipeline.json"),
     (err) => {
       if (err) {
         console.error("Pipeline failed:", err);
       }
     }
   );
+};
+
+export const streamingPipelinePromiseImplementation = async () => {
+  return pipelinePromise(
+    fs.createReadStream(filePath, "utf-8"),
+    parser(),
+    streamArray(),
+    async function* (source: { value: EmployeeCore }[]) {
+      for await (const { value } of source) {
+        yield {
+          id: value.id,
+          name: value.name,
+          language: value.language,
+        };
+      }
+    },
+    stringer(),
+    fs.createWriteStream("data/5MB-stream-pipeline-promise.json")
+  ).catch((err) => {
+    if (err) {
+      console.error("Pipeline failed:", err);
+    }
+  });
 };

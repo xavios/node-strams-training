@@ -5,25 +5,17 @@
 - run tests with `yarn run test` or with `yarn run test-watch`. Pass in individual file pathes with `yarn run test -- ./path-to/file.test.ts`
 - run `yarn run execute` to build js files and execute with Node.
 
-## Node Streams training
+---
 
-In order to understand the core principles and ideas of stream processing.
+# Agenda
 
-- dev workshop like what we have done with the Online Club would be quite usuable
-- with some example project make sense of
-- node js streams (readable, writeable, duplex, transform)
-- why use streams?
-  memory efficiency, faster processing of large data (1.7gb UK export)
-  great for real time data
-- node:stream/promises
-- chunking - highWaterMark
-- json data streaming form a big big json file
-  const { parser } = require('stream-json');
-  import JsonlParser from 'stream-json/jsonl/Parser.js';
-
-using xq and jq to measure the amount of the products that are serialised into the feeds
-cat cz-2025-07-04-google.xml| xq -j | jq '.feed.entry[].id' | wc -l
-Install azure-cli and use it for downloading some blobs
+1. naive implementation to read a 5 BM file
+2. streams and why they are useful
+3. .pipe() and the shortcomings of it
+4. pipeline()
+5. await pipeline()
+6. additional prerequisities
+7. hands-on dev workshop for publisher
 
 ## Node JS streams
 
@@ -70,3 +62,19 @@ errors and backpressure.
 
 In a pipeline any error can be propagated to the final callback - making the code more robust and safer.
 pipeline() is returning a promise, so you can await the result of a pipeline run.
+
+If we are using the `await pipeline()` from "node:stream/promises" we are then introducing a
+blocking behaviour whcih prevents parallelism. In contrast, a naive in-memory transformation
+might process everything in a tight loop, leveraging CPU cache and avoiding async overhead.
+
+| Approach                     | Best For                                                     |
+| ---------------------------- | ------------------------------------------------------------ |
+| `await pipeline()` + streams | Large files, low memory usage, clean async error handling    |
+| `.pipe()` chains             | Performance-critical pipelines with native stream support    |
+| In-memory transforms         | Small/medium files where speed is more important than memory |
+
+Other parts for the Dev Workshop could include:
+
+- Install azure-cli and use it for downloading some blobs
+- using xq and jq to measure the amount of the products that are serialised into the feeds
+  `cat cz-2025-07-04-google.xml| xq -j | jq '.feed.entry[].id' | wc -l`
